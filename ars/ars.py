@@ -4,19 +4,21 @@ Horia Mania --- hmania@berkeley.edu
 Aurelia Guy
 Benjamin Recht
 '''
-
+#import sys
+#sys.path.append('../../..')
 import parser
 import time
 import os
 import numpy as np
 import gym
-import logz
 import ray
-import utils
-import optimizers
-from policies import *
-import socket
-from shared_noise import *
+
+from . import logz
+from . import utils
+from .policies import *
+from .shared_noise import *
+from . import optimizers
+
 
 @ray.remote
 class Worker(object):
@@ -32,6 +34,8 @@ class Worker(object):
                  delta_std=0.02):
 
         # initialize OpenAI environment for each worker
+        import sys
+        sys.path.append('../../..')
         self.env = gym.make(env_name)
         self.env.seed(env_seed)
 

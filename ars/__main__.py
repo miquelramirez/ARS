@@ -1,4 +1,7 @@
 import argparse
+import socket
+import ray
+from .ars import run_ars
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -10,6 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('--delta_std', '-std', type=float, default=.03)
     parser.add_argument('--n_workers', '-e', type=int, default=18)
     parser.add_argument('--rollout_length', '-r', type=int, default=1000)
+    parser.add_argument('--address', '-a', type=str, default='localhost')
 
     # for Swimmer-v1 and HalfCheetah-v1 use shift = 0
     # for Hopper-v1, Walker2d-v1, and Ant-v1 use shift = 1
@@ -22,9 +26,13 @@ if __name__ == '__main__':
     # for ARS V1 use filter = 'NoFilter'
     parser.add_argument('--filter', type=str, default='MeanStdFilter')
 
-    local_ip = socket.gethostbyname(socket.gethostname())
-    ray.init(redis_address= local_ip + ':6379')
-
     args = parser.parse_args()
     params = vars(args)
+
+    if args.address == 'localhost':
+        local_ip = socket.gethostbyname(socket.gethostname())
+        ray.init(redis_address= local_ip + ':6379')
+    else :
+        ray.init(redis_address=args.address)
+
     run_ars(params)

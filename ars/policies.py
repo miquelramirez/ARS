@@ -1,13 +1,13 @@
 '''
-Policy class for computing action from weights and observation vector. 
+Policy class for computing action from weights and observation vector.
 Horia Mania --- hmania@berkeley.edu
 Aurelia Guy
-Benjamin Recht 
+Benjamin Recht
 '''
 
 
 import numpy as np
-from filter import get_filter
+from .filter import get_filter
 
 class Policy(object):
 
@@ -20,7 +20,7 @@ class Policy(object):
         # a filter for updating statistics of the observations and normalizing inputs to the policies
         self.observation_filter = get_filter(policy_params['ob_filter'], shape = (self.ob_dim,))
         self.update_filter = True
-        
+
     def update_weights(self, new_weights):
         self.weights[:] = new_weights[:]
         return
@@ -39,7 +39,7 @@ class Policy(object):
 
 class LinearPolicy(Policy):
     """
-    Linear policy class that computes action as <w, ob>. 
+    Linear policy class that computes action as <w, ob>.
     """
 
     def __init__(self, policy_params):
@@ -48,11 +48,12 @@ class LinearPolicy(Policy):
 
     def act(self, ob):
         ob = self.observation_filter(ob, update=self.update_filter)
-        return np.dot(self.weights, ob)
+        u = np.dot(self.weights, ob)
+        assert u.shape[0] == self.ac_dim
+        return u
 
     def get_weights_plus_stats(self):
-        
+
         mu, std = self.observation_filter.get_stats()
         aux = np.asarray([self.weights, mu, std])
         return aux
-        

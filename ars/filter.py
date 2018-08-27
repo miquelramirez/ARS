@@ -87,7 +87,7 @@ class RunningStat(object):
         x = np.asarray(x)
         # Unvectorized update of the running statistics.
         assert x.shape == self._M.shape, ("x.shape = {}, self.shape = {}"
-                                          .format(x.shape, self._M.shape))
+                                      .format(x.shape, self._M.shape))
         n1 = self._n
         self._n += 1
         if self._n == 1:
@@ -97,7 +97,7 @@ class RunningStat(object):
             deltaM2 = np.square(x) - self._M2
             self._M[...] += delta / self._n
             self._S[...] += delta * delta * n1 / self._n
-            
+
 
     def update(self, other):
         n1 = self._n
@@ -170,7 +170,7 @@ class MeanStdFilter(Filter):
         self.rs.update(other.buffer)
         if copy_buffer:
             self.buffer = other.buffer.copy()
-        return 
+        return
 
     def copy(self):
         """Returns a copy of Filter."""
@@ -198,13 +198,16 @@ class MeanStdFilter(Filter):
     def __call__(self, x, update=True):
         x = np.asarray(x, dtype = np.float64)
         if update:
-            if len(x.shape) == len(self.rs.shape) + 1:
+            if (len(x.shape) == len(self.rs.shape) + 1) and all([d > 1 for d in x.shape]):
                 # The vectorized case.
                 for i in range(x.shape[0]):
                     self.rs.push(x[i])
                     self.buffer.push(x[i])
             else:
                 # The unvectorized case.
+                if len(x.shape) == 2 and (x.shape[0] == self.rs.shape[0]):
+                    x = x.flatten()
+
                 self.rs.push(x)
                 self.buffer.push(x)
         if self.demean:
@@ -217,10 +220,10 @@ class MeanStdFilter(Filter):
         self.mean = self.rs.mean
         self.std = self.rs.std
 
-        # Set values for std less than 1e-7 to +inf to avoid 
+        # Set values for std less than 1e-7 to +inf to avoid
         # dividing by zero. State elements with zero variance
-        # are set to zero as a result. 
-        self.std[self.std < 1e-7] = float("inf") 
+        # are set to zero as a result.
+        self.std[self.std < 1e-7] = float("inf")
         return
 
     def get_stats(self):
@@ -231,7 +234,7 @@ class MeanStdFilter(Filter):
             self.shape, self.demean,
             self.rs, self.buffer)
 
-    
+
 def get_filter(filter_config, shape = None):
     if filter_config == "MeanStdFilter":
         return MeanStdFilter(shape)
