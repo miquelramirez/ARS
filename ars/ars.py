@@ -4,14 +4,15 @@ Horia Mania --- hmania@berkeley.edu
 Aurelia Guy
 Benjamin Recht
 '''
-#import sys
-#sys.path.append('../../..')
+
+import importlib
 import parser
 import time
 import os
 import numpy as np
 import gym
 import ray
+
 
 from . import logz
 from . import utils
@@ -164,7 +165,12 @@ class ARSLearner(object):
         logz.configure_output_dir(logdir)
         logz.save_params(params)
 
-        env = gym.make(env_name)
+        tokens = env_name.split(':')
+        if len(tokens) == 2:
+            importlib.import_module(tokens[0])
+            env = gym.make(tokens[1])
+        else:
+            env = gym.make(tokens[0])
 
         self.timesteps = 0
         self.action_size = env.action_space.shape[0]
@@ -359,7 +365,13 @@ def run_ars(params):
     if not(os.path.exists(logdir)):
         os.makedirs(logdir)
 
-    env = gym.make(params['env_name'])
+    tokens = params['env_name'].split(':')
+    if len(tokens) == 2:
+        importlib.import_module(tokens[0])
+        env = gym.make(tokens[1])
+    else:
+        env = gym.make(tokens[0])
+
     ob_dim = env.observation_space.shape[0]
     ac_dim = env.action_space.shape[0]
 
