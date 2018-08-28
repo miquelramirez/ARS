@@ -36,8 +36,12 @@ class Worker(object):
 
         # initialize OpenAI environment for each worker
         import sys
-        sys.path.append('../../..')
-        self.env = gym.make(env_name)
+        tokens = env_name.split(':')
+        if len(tokens) == 2:
+            importlib.import_module(tokens[0])
+            self.env = gym.make(tokens[1])
+        else:
+            self.env = gym.make(tokens[0])
         self.env.seed(env_seed)
 
         # each worker gets access to the shared noise table
