@@ -10,13 +10,12 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 
 def main():
-    #extras_require = {
+    extras_require = {
     #    'dev': ['pytest', 'tox'],
     #    'test': ['pytest', 'tox'],
-    #}
+    }
 
     install_requires = [
-        'py>=3.5.0',
         'six>=1.10.0',
         'setuptools',
         'ray',
